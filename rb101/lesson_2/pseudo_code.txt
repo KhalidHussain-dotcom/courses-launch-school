@@ -1,0 +1,20 @@
+1. get two numbers, perform sum addition on them, returns result.
+START
+GET two numbers
+perform addition on two numbers.
+RETURN result
+END
+
+2. get an array of strings, connect the strings and return them
+START
+READ array
+connect elements together
+return string
+END
+
+3. Takes an array, returns a new array with every other element.
+START
+GET ARRAY
+FILTER through array selecting every other index and making a new array
+Return the Array
+END
