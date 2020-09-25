@@ -5,6 +5,7 @@ GAME_LOGIC = { rock: ['scissors', 'lizard'],
                scissors: ['paper', 'lizard'],
                spock: ['scissors', 'rock'],
                lizard: ['paper', 'spock'] }
+VALID_CONTINUE_CHOICES = ['y', 'yes', 'n', 'no']
 
 def prompt(message)
   Kernel.puts("=> #{message}")
@@ -39,45 +40,75 @@ def convert_choice(choice)
   end
 end
 
-player_score = 0
-computer_score = 0
-
-loop do
+def retrieve_user_choice
   choice = ''
-
   loop do
     prompt("Choose one: (r)ock, (p)aper, (s)cissors, spoc(k), (l)izard")
     choice = Kernel.gets().downcase().chomp()
     if VALID_CHOICES.include?(choice) || SHORTENED_CHOICES.include?(choice)
-      break
+      (choice = convert_choice(choice)) if SHORTENED_CHOICES.include?(choice)
+      return choice
     else
       prompt("That's not a valid choice.")
     end
   end
-
-  (choice = convert_choice(choice)) if SHORTENED_CHOICES.include?(choice)
-
-  computer_choice = VALID_CHOICES.sample
-
-  Kernel.puts("You chose: #{choice}; Computer chose: #{computer_choice}")
-
-  display_results(choice, computer_choice)
-
-  player_score += 1 if win?(choice, computer_choice)
-  computer_score += 1 if win?(computer_choice, choice)
-
-  if player_score >= 5 || computer_score >= 5
-    if player_score >= 5
-      prompt("Player is the grand winner with 5 total wins!")
-    else
-      prompt("Computer is the grand winner with 5 total wins!")
-    end
-    break
-  end
-
-  prompt("Do you want to play again?")
-  answer = Kernel.gets().chomp()
-  break unless answer.downcase().start_with?('y')
 end
 
-prompt("Thank you for playing!")
+def display_choices(choice, computer_choice)
+  Kernel.puts("You chose: #{choice}; Computer chose: #{computer_choice}")
+end
+
+def update_scores(scores, choice, computer_choice)
+  scores[:player] += 1 if win?(choice, computer_choice)
+  scores[:computer] += 1 if win?(computer_choice, choice)
+end
+
+def someone_grand_winner?(scores)
+  scores[:player] >= 5 || scores[:computer] >= 5
+end
+
+def display_winner(scores)
+  if scores[:player] >= 5
+    prompt("Player is the grand winner with 5 total wins!")
+  else
+    prompt("Computer is the grand winner with 5 total wins!")
+  end
+end
+
+def play_again?
+  answer = ''
+  loop do
+    prompt("Do you want to play again?")
+    answer = Kernel.gets().downcase().chomp()
+    if VALID_CONTINUE_CHOICES.include?(answer)
+      break
+    else
+      puts("Invalid answer! Please enter 'y' or 'n'")
+    end
+  end
+  answer == 'y' || answer == 'yes'
+end
+
+def display_goodbye
+  prompt("Thank you for playing!")
+end
+
+def display_welcome
+  prompt("Welcome to the game, first to 5 wins is the grand winner!")
+end
+
+display_welcome
+loop do
+  scores = { player: 0, computer: 0 }
+  loop do
+    choice = retrieve_user_choice
+    computer_choice = VALID_CHOICES.sample
+    display_choices(choice, computer_choice)
+    display_results(choice, computer_choice)
+    update_scores(scores, choice, computer_choice)
+    break if someone_grand_winner?(scores)
+  end
+  display_winner(scores) if someone_grand_winner?(scores)
+  break unless play_again?
+end
+display_goodbye
