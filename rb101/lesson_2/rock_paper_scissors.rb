@@ -97,6 +97,10 @@ def display_welcome
   prompt("Welcome to the game, first to 5 wins is the grand winner!")
 end
 
+def display_scores(scores)
+  prompt("Score: Player #{scores[:player]} and Computer #{scores[:computer]}")
+end
+
 display_welcome
 loop do
   scores = { player: 0, computer: 0 }
@@ -107,6 +111,7 @@ loop do
     display_results(choice, computer_choice)
     update_scores(scores, choice, computer_choice)
     break if someone_grand_winner?(scores)
+    display_scores(scores)
   end
   display_winner(scores) if someone_grand_winner?(scores)
   break unless play_again?
